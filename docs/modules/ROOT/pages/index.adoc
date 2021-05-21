@@ -1,0 +1,5 @@
+= tc1
+
+tc1 is a Commodore component to manage tc1.
+
+See the xref:references/parameters.adoc[parameters] reference for further details.
