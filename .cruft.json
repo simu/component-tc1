@@ -1,0 +1,20 @@
+{
+  "template": "https://github.com/projectsyn/commodore-component-template.git",
+  "commit": "e6c4fd69190db1ad12e941d578b9423d0e2f993c",
+  "checkout": "main",
+  "context": {
+    "cookiecutter": {
+      "add_golden": "y",
+      "copyright_holder": "VSHN AG <info@vshn.ch>",
+      "copyright_year": "2021",
+      "github_owner": "simu",
+      "name": "tc1",
+      "slug": "tc1",
+      "test_cases": "defaults",
+      "add_lib": "y",
+      "add_pp": "n",
+      "add_matrix": "y"
+    }
+  },
+  "directory": null
+}
