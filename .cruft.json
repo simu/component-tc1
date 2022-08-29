@@ -8,17 +8,17 @@
       "slug": "tc1",
       "parameter_key": "tc1",
       "test_cases": "defaults",
+      "add_lib": "y",
+      "add_pp": "n",
       "add_golden": "y",
       "add_matrix": "y",
       "add_go_unit": "n",
+      "copyright_holder": "Simon Gerber <simu@simutech.io>",
+      "copyright_year": "2022",
       "github_owner": "simu",
       "github_name": "component-tc1",
       "github_url": "https://github.com/simu/component-tc1",
-      "_template": "https://github.com/projectsyn/commodore-component-template.git",
-      "add_lib": "y",
-      "add_pp": "n",
-      "copyright_holder": "Simon Gerber <simu@simutech.io>",
-      "copyright_year": "2022"
+      "_template": "https://github.com/projectsyn/commodore-component-template.git"
     }
   },
   "directory": null
