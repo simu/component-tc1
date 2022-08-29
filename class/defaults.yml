@@ -1,0 +1,4 @@
+parameters:
+  tc1:
+    =_metadata: {}
+    namespace: syn-tc1
