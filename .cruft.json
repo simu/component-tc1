@@ -4,16 +4,21 @@
   "checkout": "main",
   "context": {
     "cookiecutter": {
-      "add_golden": "y",
-      "copyright_holder": "VSHN AG <info@vshn.ch>",
-      "copyright_year": "2021",
-      "github_owner": "simu",
       "name": "tc1",
       "slug": "tc1",
+      "parameter_key": "tc1",
       "test_cases": "defaults",
       "add_lib": "y",
       "add_pp": "n",
-      "add_matrix": "y"
+      "add_golden": "y",
+      "add_matrix": "y",
+      "add_go_unit": "n",
+      "copyright_holder": "VSHN AG <info@vshn.ch>",
+      "copyright_year": "2021",
+      "github_owner": "simu",
+      "github_name": "component-tc1",
+      "github_url": "https://github.com/simu/component-tc1",
+      "_template": "https://github.com/projectsyn/commodore-component-template.git"
     }
   },
   "directory": null
