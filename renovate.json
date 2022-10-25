@@ -29,7 +29,8 @@
     {
       "matchUpdateTypes": ["patch"],
       "labels": ["dependency", "bump:patch"],
-      "automerge": true
+      "automerge": true,
+      "platformAutomerge": true
     }
   ]
 }
