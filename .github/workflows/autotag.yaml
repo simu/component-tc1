@@ -8,10 +8,21 @@ on:
       - labeled
 
 jobs:
-  release:
+  tag:
+    if: github.event.action != 'labeled'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ssh-key: "${{ secrets.SSH_PRIVATE_KEY }}"
+      - name: create tag
+        uses: haya14busa/action-bumpr@v1
+  tag-check:
+    if: github.event.action == 'labeled'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       # Bump version on merging Pull Requests with specific labels.
       # (bump:major,bump:minor,bump:patch)
-      - uses: haya14busa/action-bumpr@v1
+      - name: Post bumpr status comment on PR
+        uses: haya14busa/action-bumpr@v1
