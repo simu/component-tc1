@@ -2,3 +2,9 @@ parameters:
   tc1:
     =_metadata: {}
     namespace: syn-tc1
+
+    images:
+      cloud-portal:
+        registry: ghcr.io
+        repository: appuio/cloud-portal
+        version: v0.8.0
