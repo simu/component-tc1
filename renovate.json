@@ -20,15 +20,15 @@
   "packageRules": [
     {
       "matchUpdateTypes": ["major"],
-      "labels": ["bump:major"]
+      "labels": ["dependency", "bump:major"]
     },
     {
       "matchUpdateTypes": ["minor"],
-      "labels": ["bump:minor"]
+      "labels": ["dependency", "bump:minor"]
     },
     {
       "matchUpdateTypes": ["patch"],
-      "labels": ["bump:patch"]
+      "labels": ["dependency", "bump:patch"]
     }
   ]
 }
