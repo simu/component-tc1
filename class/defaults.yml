@@ -5,6 +5,7 @@ parameters:
 
 
     foo: bar
+    bar: foo
 
     images:
       cloud-portal:
