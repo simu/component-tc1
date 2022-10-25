@@ -21,7 +21,7 @@ jobs:
         with:
           dry_run: true
       - name: create tag
-        if: steps.new-tag.outputs.next_version != ""
+        if: steps.new-tag.outputs.next_version != ''
         env:
           TAG: ${{ steps.new-tag.outputs.next_version }}
         run: |
