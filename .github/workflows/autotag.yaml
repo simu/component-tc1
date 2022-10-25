@@ -18,6 +18,7 @@ jobs:
         env:
           LABELS: join(github.event.pull_request.labels.*.name, ';')
         run: |
+          echo "yolo"
           curl -LO https://raw.githubusercontent.com/fsaintjacques/semver-tool/master/src/semver
           chmod +x ./semver
           bump=patch
