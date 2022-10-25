@@ -15,6 +15,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ssh-key: "${{ secrets.SSH_PRIVATE_KEY }}"
+          depth: "0"
       - name: compute tag
         id: new-tag
         uses: haya14busa/action-bumpr@v1
