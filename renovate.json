@@ -28,7 +28,8 @@
     },
     {
       "matchUpdateTypes": ["patch"],
-      "labels": ["dependency", "bump:patch"]
+      "labels": ["dependency", "bump:patch"],
+      "automerge": true
     }
   ]
 }
