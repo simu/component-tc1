@@ -14,5 +14,21 @@
   "suppressNotifications": [ "artifactErrors" ],
   "labels": [
     "dependency"
+  ],
+  "separateMinorPatch": true,
+  "separateMultipleMajor": true,
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["major"],
+      "labels": ["bump:major"]
+    },
+    {
+      "matchUpdateTypes": ["minor"],
+      "labels": ["bump:minor"]
+    },
+    {
+      "matchUpdateTypes": ["patch"],
+      "labels": ["bump:patch"]
+    }
   ]
 }
