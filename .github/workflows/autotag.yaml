@@ -28,7 +28,7 @@ jobs:
           echo "current version: ${curVer}"
           newVer="v$(./semver bump ${bump} $curVer)"
           echo "new version: ${newVer}"
-          git tag "${newVer}" -a "${newVer}"
+          git tag -a "${newVer}" "${newVer}"
           git push origin "${newVer}"
   tag-check:
     if: github.event.action == 'labeled'
