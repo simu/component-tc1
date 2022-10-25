@@ -15,7 +15,11 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ssh-key: "${{ secrets.SSH_PRIVATE_KEY }}"
-          depth: "0"
+      - name: revert git config
+        id: git-ssh-config
+        run: |
+          echo "ssh-command=$(/usr/bin/git config --local core.sshCommand)" >> $GITHUB_OUTPUT
+          /usr/bin/git config --local --unset core.sshCommand
       - name: compute tag
         id: new-tag
         uses: haya14busa/action-bumpr@v1
@@ -26,6 +30,7 @@ jobs:
         env:
           TAG: ${{ steps.new-tag.outputs.next_version }}
         run: |
+          git config --local core.sshCommand "${{ steps.git-ssh-config.outputs.ssh-command }}"
           git tag "${TAG}" -a "${TAG}"
           git push origin "${TAG}"
   tag-check:
