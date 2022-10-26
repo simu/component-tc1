@@ -6,6 +6,7 @@ parameters:
 
     foo: bar
     bar: foo
+    baz: qux
 
     images:
       cloud-portal:
