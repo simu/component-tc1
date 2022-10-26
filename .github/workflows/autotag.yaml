@@ -1,62 +1,61 @@
 name: create tag
 on:
   pull_request:
+    # Run when PR head branch is updated (synchronize), when the PR is
+    # labeled, and after the PR is closed. We additionally check for
+    # `merged==true` in the event payload on `closed` before actually pushing
+    # the tag.
     types:
+      - synchronize
       - labeled
       - closed
 
 jobs:
   tag:
-    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    if: contains(join(github.event.pull_request.labels.*.name, ';'), 'bump:')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
           fetch-depth: "0"
+      - name: install semver
+        run: |
+          curl -LO https://raw.githubusercontent.com/fsaintjacques/semver-tool/master/src/semver
+          chmod +x ./semver
+      - name: configure git user
+        run: |
+          git config --global user.name "$GITHUB_ACTOR"
+          git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      - name: extract version bump from labels
+        id: bump
+        env:
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ';') }}
+        run: |
+          bump=""
+          for lbl in $(echo $LABELS | tr ";" "\n"); do echo "processing $lbl"; if [[ "$lbl" == "bump:"* ]]; then bump=${lbl/bump:}; fi; done
+          echo "version bump: ${bump}"
+          echo "bump=${bump}" >> $GITHUB_OUTPUT
+      - name: compute next version
+        if: steps.bump.outputs.bump != ''
+        id: next-version
+        env:
+          bump: ${{ steps.bump.outputs.bump }}
+        run: |
+          echo "bumping to next ${bump} version"
+          curVer=$(git tag --sort=-v:refname | head -n1)
+          echo "current version: ${curVer}"
+          newVer="v$(./semver bump ${bump} $curVer)"
+          echo "new version: ${newVer}"
+          echo "next-version=${newVer}" >> $GITHUB_OUTPUT
       - name: create tag
-        if: contains(join(github.event.pull_request.labels.*.name, ';'), 'bump:')
         env:
-          LABELS: ${{ join(github.event.pull_request.labels.*.name, ';') }}
+          newVer: ${{ steps.next-version.outputs.next-version }}
+        if: steps.bump.outputs.bump != ''
+        run: git tag -a -m "${newVer}" "${newVer}"
+      - name: push tag (for merged PRs)
+        if: steps.bump.outputs.bump != '' && github.event.action == 'closed' && github.event.pull_request.merged == true
+        env:
+          newVer: ${{ steps.next-version.outputs.next-version }}
         run: |
-          curl -LO https://raw.githubusercontent.com/fsaintjacques/semver-tool/master/src/semver
-          chmod +x ./semver
-          bump=patch
-          for lbl in $(echo $LABELS | tr ";" "\n"); do if [[ "$lbl" == "bump:"* ]]; then bump=${lbl/bump:}; fi; done
-          echo "bumping to next ${bump} version"
-          curVer=$(git tag --sort=-v:refname | head -n1)
-          echo "current version: ${curVer}"
-          newVer="v$(./semver bump ${bump} $curVer)"
-          echo "new version: ${newVer}"
-          git config user.name "github-actions"
-          git config user.email "ahoy@syn.tools"
-          git tag -a -m "${newVer}" "${newVer}"
           git push origin "${newVer}"
-  tag-check:
-    if: github.event.action == 'labeled'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
-      # Bump version on merging Pull Requests with specific labels.
-      # (bump:major,bump:minor,bump:patch)
-      - name: render new tag
-        if: contains(join(github.event.pull_request.labels.*.name, ';'), 'bump:')
-        env:
-          LABELS: ${{ join(github.event.pull_request.labels.*.name, ';') }}
-        run: |
-          curl -LO https://raw.githubusercontent.com/fsaintjacques/semver-tool/master/src/semver
-          chmod +x ./semver
-          bump="patch"
-          echo $LABELS
-          for lbl in $(echo $LABELS | tr ";" "\n"); do if [[ "$lbl" == "bump:"* ]]; then bump=${lbl/bump:}; fi; done
-          echo "bumping to next ${bump} version"
-          curVer=$(git tag --sort=-v:refname | head -n1)
-          echo "current version: ${curVer}"
-          newVer="v$(./semver bump ${bump} $curVer)"
-          echo "new version: ${newVer}"
-          echo "${curVer} -> ${newVer}"
-          git config user.name "github-actions"
-          git config user.email "ahoy@syn.tools"
-          git tag -a -m "${newVer}" "${newVer}"
