@@ -91,6 +91,7 @@ jobs:
           body-includes: '🛠️ _Auto release '
       - name: add or update comment on PR
         uses: peter-evans/create-or-update-comment@v2
+        if: github.event.action != 'closed'
         with:
           comment-id: ${{ steps.comment.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
@@ -109,3 +110,14 @@ jobs:
           newVer: ${{ steps.next-version.outputs.next-version }}
         run: |
           git push origin "${newVer}"
+      - name: add or update comment on PR
+        uses: peter-evans/create-or-update-comment@v2
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        with:
+          comment-id: ${{ steps.comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            🚀 This PR has been released as [`${{ steps.next-version.outputs.next-version }}`](https://github.com/${{ github.repository }}/releases/tag/${{ steps.next-version.outputs.next-version }})
+
+            🛠️ _Auto release enabled_ with label `bump:${{ needs.parse-labels.outputs.bump }}`
+          edit-mode: replace
