@@ -1,18 +1,62 @@
 name: create tag
 on:
   pull_request:
-    # Run when PR head branch is updated (synchronize), when the PR is
-    # labeled, and after the PR is closed. We additionally check for
-    # `merged==true` in the event payload on `closed` before actually pushing
-    # the tag.
+    # Run when PR head branch is updated (synchronize), when the set of PR
+    # labels is changed (labeled, unlabeled), and after the PR is closed. We
+    # additionally check for `merged==true` in the event payload on `closed`
+    # before actually pushing the tag.
     types:
       - synchronize
       - labeled
+      - unlabeled
       - closed
 
 jobs:
-  tag:
+  parse-labels:
     if: contains(join(github.event.pull_request.labels.*.name, ';'), 'bump:')
+    runs-on: ubuntu-latest
+    outputs:
+      label-count: ${{ steps.bump.outputs.label-count }}
+      bump: ${{ steps.bump.outputs.bump }}
+    steps:
+      - name: extract version bump from labels
+        id: bump
+        env:
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ';') }}
+        run: |
+          bump=""
+          label_count=0
+          for lbl in $(echo $LABELS | tr ";" "\n"); do
+            if [[ "$lbl" == "bump:"* ]]; then
+              label_count=$(( $label_count + 1 ))
+              bump=${lbl/bump:};
+            fi
+          done
+          echo "found ${label_count} bump labels"
+          echo "version bump: ${bump}"
+          echo "bump=${bump}" >> $GITHUB_OUTPUT
+          echo "label-count=${label_count}" >> $GITHUB_OUTPUT
+      - name: try to find existing comment
+        uses: peter-evans/find-comment@v2
+        id: comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: '🛠️ _Auto release'
+      - name: add or update PR comment for too many labels
+        if: steps.bump.outputs.label-count > 1
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          comment-id: ${{ steps.comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Found ${{ steps.bump.outputs.label-count }} `bump:` labels, please make sure you only add one `bump:` label.
+
+            🛠️ _Auto release disabled_
+          edit-mode: replace
+  tag:
+    needs: parse-labels
+    if: needs.parse-labels.outputs.label-count == 1
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -27,20 +71,10 @@ jobs:
         run: |
           git config --global user.name "$GITHUB_ACTOR"
           git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
-      - name: extract version bump from labels
-        id: bump
-        env:
-          LABELS: ${{ join(github.event.pull_request.labels.*.name, ';') }}
-        run: |
-          bump=""
-          for lbl in $(echo $LABELS | tr ";" "\n"); do echo "processing $lbl"; if [[ "$lbl" == "bump:"* ]]; then bump=${lbl/bump:}; fi; done
-          echo "version bump: ${bump}"
-          echo "bump=${bump}" >> $GITHUB_OUTPUT
       - name: compute next version
-        if: steps.bump.outputs.bump != ''
         id: next-version
         env:
-          bump: ${{ steps.bump.outputs.bump }}
+          bump: ${{ needs.parse-labels.outputs.bump }}
         run: |
           echo "bumping to next ${bump} version"
           curVer=$(git tag --sort=-v:refname | head -n1)
@@ -48,13 +82,29 @@ jobs:
           newVer="v$(./semver bump ${bump} $curVer)"
           echo "new version: ${newVer}"
           echo "next-version=${newVer}" >> $GITHUB_OUTPUT
+      - name: try to find existing comment
+        uses: peter-evans/find-comment@v2
+        id: comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: '🛠️ _Auto release '
+      - name: add or update comment on PR
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          comment-id: ${{ steps.comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            🚀 Merging this PR will release `${{ steps.next-version.outputs.next-version }}`
+
+            🛠️ _Auto release enabled_ with label `bump:${{ needs.parse-labels.outputs.bump }}`
+          edit-mode: replace
       - name: create tag
         env:
           newVer: ${{ steps.next-version.outputs.next-version }}
-        if: steps.bump.outputs.bump != ''
         run: git tag -a -m "${newVer}" "${newVer}"
       - name: push tag (for merged PRs)
-        if: steps.bump.outputs.bump != '' && github.event.action == 'closed' && github.event.pull_request.merged == true
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
         env:
           newVer: ${{ steps.next-version.outputs.next-version }}
         run: |
