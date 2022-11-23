@@ -24,7 +24,9 @@
     },
     {
       "matchUpdateTypes": ["minor"],
-      "labels": ["dependency", "bump:minor"]
+      "labels": ["dependency", "bump:minor"],
+      "automerge": true,
+      "platformAutomerge": true
     },
     {
       "matchUpdateTypes": ["patch"],
