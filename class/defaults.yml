@@ -7,9 +7,3 @@ parameters:
     foo: bar
     bar: foo
     baz: qux
-
-    images:
-      cloud-portal:
-        registry: ghcr.io
-        repository: appuio/cloud-portal
-        version: v0.11.0
