@@ -17,6 +17,5 @@ jobs:
     steps:
       - uses: projectsyn/pr-label-tag-action@initial-implementation
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           trigger: |
             Release
