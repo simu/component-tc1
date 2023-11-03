@@ -6,7 +6,6 @@ on:
     # additionally check for `merged==true` in the event payload on `closed`
     # before actually pushing the tag.
     types:
-      - synchronize
       - labeled
       - unlabeled
       - closed
