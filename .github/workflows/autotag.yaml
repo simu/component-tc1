@@ -15,9 +15,6 @@ jobs:
   autotag:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
       - uses: projectsyn/pr-label-tag-action@initial-implementation
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
