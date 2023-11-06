@@ -15,7 +15,7 @@ jobs:
   autotag:
     runs-on: ubuntu-latest
     steps:
-      - uses: projectsyn/pr-label-tag-action@initial-implementation
+      - uses: projectsyn/pr-label-tag-action@v1.0.0
         with:
           trigger: |
             Release

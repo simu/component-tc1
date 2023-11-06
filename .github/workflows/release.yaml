@@ -32,3 +32,5 @@ jobs:
           # Ensure target branch for release is "master"
           commit: master
           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update SemVer tags
+        uses: zyactions/update-semver@v1
