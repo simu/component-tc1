@@ -7,3 +7,4 @@ parameters:
     foo: bar
     bar: foo
     baz: qux
+    qux: foo
